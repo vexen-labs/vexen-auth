@@ -7,7 +7,7 @@ packages = ["vexen_auth"]
 
 [project]
 name = "vexen-auth"
-version = "0.1.1"
+version = "0.1.2"
 description = "Authentication system with hexagonal architecture"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -19,6 +19,7 @@ dependencies = [
 	"greenlet>=3.0.0",
 	"pyjwt>=2.8.0",
 	"bcrypt>=4.1.0",
+	"redis[hiredis]>=5.0.0",
 ]
 
 [project.optional-dependencies]
