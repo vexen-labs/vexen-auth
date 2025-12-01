@@ -7,9 +7,7 @@ class IAuthProviderPort(ABC):
 	"""Interface for authentication providers"""
 
 	@abstractmethod
-	async def authenticate(
-		self, email: str, password: str
-	) -> tuple[str, str, str] | None:
+	async def authenticate(self, email: str, password: str) -> tuple[str, str, str] | None:
 		"""
 		Authenticate a user with credentials.
 

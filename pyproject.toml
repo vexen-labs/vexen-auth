@@ -7,7 +7,7 @@ packages = ["vexen_auth"]
 
 [project]
 name = "vexen-auth"
-version = "0.1.0"
+version = "0.1.1"
 description = "Authentication system with hexagonal architecture"
 readme = "README.md"
 requires-python = ">=3.11"

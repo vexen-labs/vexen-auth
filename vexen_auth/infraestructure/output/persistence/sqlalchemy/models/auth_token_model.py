@@ -19,7 +19,5 @@ class AuthTokenModel(Base):
 		Text, nullable=False, unique=True, index=True
 	)  # Hashed refresh token
 	expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime, nullable=False, default=datetime.now
-	)
+	created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.now)
 	revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
