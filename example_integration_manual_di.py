@@ -9,10 +9,15 @@ Este enfoque usa:
 
 import asyncio
 
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+	AsyncEngine,
+	AsyncSession,
+	async_sessionmaker,
+	create_async_engine,
+)
 
 # Importar los 3 sistemas
-# from auth import AuthConfig, VexenAuth
+# from vexen_auth import AuthConfig, VexenAuth
 # from rbac import RBACConfig, VexenRBAC
 # from vexen_user import VexenUser, VexenUserConfig
 
@@ -120,8 +125,7 @@ class VexenContainer:
 async def main():
 	"""Example usage with manual DI container"""
 	async with VexenContainer(
-		database_url="postgresql+asyncpg://user:pass@localhost/db",
-		secret_key="my-secret-key"
+		database_url="postgresql+asyncpg://user:pass@localhost/db", secret_key="my-secret-key"
 	) as container:
 		# All services share the same DB session and transaction
 

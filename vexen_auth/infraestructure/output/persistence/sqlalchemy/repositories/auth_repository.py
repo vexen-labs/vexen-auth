@@ -1,5 +1,7 @@
 """SQLAlchemy implementation of auth repository."""
 
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from vexen_auth.domain.entity.user_credential import UserCredential
 from vexen_auth.domain.repository.auth_repository_port import IAuthRepositoryPort
 from vexen_auth.infraestructure.output.persistence.sqlalchemy.mappers.user_credential_mapper import (
@@ -8,9 +10,6 @@ from vexen_auth.infraestructure.output.persistence.sqlalchemy.mappers.user_crede
 from vexen_auth.infraestructure.output.persistence.sqlalchemy.models.user_credential_model import (
 	UserCredentialModel,
 )
-
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class AuthRepository(IAuthRepositoryPort):

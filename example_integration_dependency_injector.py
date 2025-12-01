@@ -17,7 +17,12 @@ import asyncio
 
 from dependency_injector import containers, providers
 from dependency_injector.wiring import Provide, inject
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+	AsyncEngine,
+	AsyncSession,
+	async_sessionmaker,
+	create_async_engine,
+)
 
 
 class DatabaseContainer(containers.DeclarativeContainer):
@@ -217,8 +222,8 @@ class VexenContainer(containers.DeclarativeContainer):
 # Usage with dependency injection
 @inject
 async def create_user_use_case(
-	user_service = Provide[VexenContainer.services.user_service],
-	auth_service = Provide[VexenContainer.services.auth_service],
+	user_service=Provide[VexenContainer.services.user_service],
+	auth_service=Provide[VexenContainer.services.auth_service],
 ):
 	"""Example use case with automatic dependency injection"""
 	# Dependencies are automatically injected
@@ -232,15 +237,19 @@ async def main():
 	# Create and configure container
 	container = VexenContainer()
 
-	container.config.database.from_dict({
-		"database_url": "postgresql+asyncpg://user:pass@localhost/db",
-		"echo": False,
-	})
+	container.config.database.from_dict(
+		{
+			"database_url": "postgresql+asyncpg://user:pass@localhost/db",
+			"echo": False,
+		}
+	)
 
-	container.config.security.from_dict({
-		"secret_key": "my-secret-key",
-		"algorithm": "HS256",
-	})
+	container.config.security.from_dict(
+		{
+			"secret_key": "my-secret-key",
+			"algorithm": "HS256",
+		}
+	)
 
 	# Wire the container to enable @inject
 	container.wire(modules=[__name__])

@@ -2,7 +2,7 @@
 
 import asyncio
 
-from auth import (
+from vexen_auth import (
 	AuthConfig,
 	LoginRequest,
 	LogoutRequest,

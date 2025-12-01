@@ -4,10 +4,12 @@ from dataclasses import dataclass
 from datetime import timedelta
 
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+
 from vexen_auth.application.service.auth_service import AuthService
+from vexen_auth.domain.repository.session_cache_port import ISessionCachePort
 from vexen_auth.domain.repository.user_info_port import IUserInfoPort
-from vexen_auth.infraestructure.output.persistence.sqlalchemy.adapters.auth_repository_adapter import (
-	AuthRepositoryAdapter,
+from vexen_auth.infraestructure.output.persistence.sqlalchemy.adapters import (
+	auth_repository_adapter,
 )
 from vexen_auth.infraestructure.output.persistence.sqlalchemy.adapters.user_info_adapter import (
 	UserInfoAdapter,
@@ -36,6 +38,10 @@ class AuthConfig:
 	algorithm: str = "HS256"
 	access_token_expires_minutes: int = 15
 	refresh_token_expires_days: int = 30
+
+	# Redis configuration (optional, for session caching)
+	redis_url: str | None = None
+	enable_redis_cache: bool = False
 
 	# External service integration (optional)
 	user_service = None
@@ -78,6 +84,7 @@ class VexenAuth:
 		self.config = config
 		self._engine: AsyncEngine | None = None
 		self._session: AsyncSession | None = None
+		self._session_cache: ISessionCachePort | None = None
 		self._service: AuthService | None = None
 
 	async def init(self) -> None:
@@ -100,6 +107,13 @@ class VexenAuth:
 		async with self._engine.begin() as conn:
 			await conn.run_sync(Base.metadata.create_all)
 
+		# Initialize Redis cache if enabled
+		if self.config.enable_redis_cache:
+			from vexen_auth.infraestructure.output.cache.redis import RedisSessionCache
+
+			redis_url = self.config.redis_url or "redis://localhost:6379/0"
+			self._session_cache = RedisSessionCache(redis_url=redis_url)
+
 		# Initialize repositories
 		auth_repo = AuthRepository(self._session)
 		token_repo = TokenRepository(self._session)
@@ -110,12 +124,14 @@ class VexenAuth:
 			user_repository=self.config.user_repository,
 		)
 
-		auth_repo_adapter = AuthRepositoryAdapter(auth_repo, user_info_adapter)
+		auth_repo_adapter = auth_repository_adapter.AuthRepositoryAdapter(
+			auth_repo, user_info_adapter
+		)
 
 		# Initialize JWT handler
 		jwt_handler = JWTHandler(secret_key=self.config.secret_key, algorithm=self.config.algorithm)
 
-		# Initialize auth provider
+		# Initialize auth provider with optional Redis cache
 		auth_provider = LocalAuthProvider(
 			auth_repository=auth_repo_adapter,
 			token_repository=token_repo,
@@ -123,6 +139,7 @@ class VexenAuth:
 			jwt_handler=jwt_handler,
 			access_token_expires=timedelta(minutes=self.config.access_token_expires_minutes),
 			refresh_token_expires=timedelta(days=self.config.refresh_token_expires_days),
+			session_cache=self._session_cache,
 		)
 
 		# Initialize service
@@ -132,6 +149,8 @@ class VexenAuth:
 		"""Close all connections"""
 		if self._session:
 			await self._session.close()
+		if self._session_cache:
+			await self._session_cache.close()
 		if self._engine:
 			await self._engine.dispose()
 

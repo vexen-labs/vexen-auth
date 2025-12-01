@@ -2,6 +2,8 @@
 
 from datetime import datetime
 
+from sqlalchemy import delete, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 from vexen_auth.domain.entity.auth_token import AuthToken
 from vexen_auth.domain.repository.token_repository_port import ITokenRepositoryPort
 from vexen_auth.infraestructure.output.persistence.sqlalchemy.mappers.auth_token_mapper import (
@@ -10,9 +12,6 @@ from vexen_auth.infraestructure.output.persistence.sqlalchemy.mappers.auth_token
 from vexen_auth.infraestructure.output.persistence.sqlalchemy.models.auth_token_model import (
 	AuthTokenModel,
 )
-
-from sqlalchemy import delete, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class TokenRepository(ITokenRepositoryPort):

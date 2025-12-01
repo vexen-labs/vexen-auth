@@ -23,6 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=9.0.1", "pytest-asyncio>=0.23.0", "ruff>=0.14.7", "mypy>=1.8.0"]
+redis = ["redis[hiredis]>=5.0.0"]
 
 [tool.ruff]
 line-length = 100
