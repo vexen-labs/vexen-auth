@@ -16,10 +16,10 @@ authors = [{ name = "albakore", email = "kevink.contacto@gmail.com" }]
 dependencies = [
 	"sqlalchemy[asyncio]>=2.0.44",
 	"asyncpg>=0.29.0",
+	"aiosqlite>=0.20.0",
 	"greenlet>=3.0.0",
 	"pyjwt>=2.8.0",
 	"bcrypt>=4.1.0",
-	"redis[hiredis]>=5.0.0",
 ]
 
 [project.optional-dependencies]
