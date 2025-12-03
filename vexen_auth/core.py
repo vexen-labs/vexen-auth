@@ -44,10 +44,10 @@ class AuthConfig:
 	enable_redis_cache: bool = False
 
 	# External service integration (optional)
-	user_service = None
+	user_service: object | None = None
 
 	# Direct repository access (optional, alternative to services)
-	user_repository = None
+	user_repository: object | None = None
 
 
 class VexenAuth:
