@@ -10,6 +10,14 @@ from .auth_dto import (
 	VerifyTokenResponse,
 )
 from .base import BaseResponse
+from .openid_dto import (
+	OpenIDAuthRequest,
+	OpenIDAuthResponse,
+	OpenIDCallbackRequest,
+	OpenIDLoginResponse,
+	OpenIDProviderConfig,
+	OpenIDUserInfo,
+)
 
 __all__ = [
 	"BaseResponse",
@@ -20,4 +28,10 @@ __all__ = [
 	"LogoutRequest",
 	"VerifyTokenRequest",
 	"VerifyTokenResponse",
+	"OpenIDAuthRequest",
+	"OpenIDAuthResponse",
+	"OpenIDCallbackRequest",
+	"OpenIDLoginResponse",
+	"OpenIDProviderConfig",
+	"OpenIDUserInfo",
 ]

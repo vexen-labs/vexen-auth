@@ -49,6 +49,9 @@ class AuthConfig:
 	# Direct repository access (optional, alternative to services)
 	user_repository: object | None = None
 
+	# OpenID Connect configuration (optional)
+	openid_providers: dict[str, dict] | None = None  # Dict of provider_name -> config
+
 
 class VexenAuth:
 	"""
@@ -86,6 +89,7 @@ class VexenAuth:
 		self._session: AsyncSession | None = None
 		self._session_cache: ISessionCachePort | None = None
 		self._service: AuthService | None = None
+		self._openid_service = None
 
 	async def init(self) -> None:
 		"""Initialize the auth system"""
@@ -145,6 +149,39 @@ class VexenAuth:
 		# Initialize service
 		self._service = AuthService(auth_provider=auth_provider)
 
+		# Initialize OpenID providers if configured
+		if self.config.openid_providers:
+			from vexen_auth.application.dto.openid_dto import OpenIDProviderConfig
+			from vexen_auth.application.service.openid_service import OpenIDService
+			from vexen_auth.infraestructure.provider.openid_provider import OpenIDProvider
+
+			openid_providers = {}
+			for provider_name, provider_config_dict in self.config.openid_providers.items():
+				# Create OpenIDProvider instance
+				provider_config = OpenIDProviderConfig(**provider_config_dict)
+
+				if provider_config.enabled:
+					openid_provider = OpenIDProvider(
+						client_id=provider_config.client_id,
+						client_secret=provider_config.client_secret,
+						discovery_url=provider_config.discovery_url,
+						redirect_uri=provider_config.redirect_uri,
+						token_repository=token_repo,
+						user_info_repository=user_info_adapter,
+						jwt_handler=jwt_handler,
+						auth_repository=auth_repo_adapter,
+						access_token_expires=timedelta(
+							minutes=self.config.access_token_expires_minutes
+						),
+						refresh_token_expires=timedelta(days=self.config.refresh_token_expires_days),
+						session_cache=self._session_cache,
+						scopes=provider_config.scopes,
+					)
+					openid_providers[provider_name] = openid_provider
+
+			if openid_providers:
+				self._openid_service = OpenIDService(providers=openid_providers)
+
 	async def close(self) -> None:
 		"""Close all connections"""
 		if self._session:
@@ -179,6 +216,30 @@ class VexenAuth:
 				"VexenAuth not initialized. Call init() or use async context manager."
 			)
 		return self._service
+
+	@property
+	def openid(self):
+		"""
+		Get the OpenID service.
+
+		Returns:
+			OpenIDService instance or None if not configured
+
+		Raises:
+			RuntimeError: If VexenAuth is not initialized
+			ValueError: If OpenID providers are not configured
+		"""
+		if self._service is None:
+			raise RuntimeError(
+				"VexenAuth not initialized. Call init() or use async context manager."
+			)
+
+		if self._openid_service is None:
+			raise ValueError(
+				"OpenID Connect not configured. Add openid_providers to AuthConfig."
+			)
+
+		return self._openid_service
 
 	async def commit(self) -> None:
 		"""Commit the current transaction"""
